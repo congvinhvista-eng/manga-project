@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Shikimori Reader</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: #000;
+        color: #fff;
+        font-family: sans-serif;
+        overflow: hidden;
+      }
+
+      .reader {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+      }
+
+      img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        user-select: none;
+        -webkit-user-drag: none;
+      }
+
+      .nav {
+        position: absolute;
+        top: 0;
+        width: 25%;
+        height: 100%;
+        z-index: 10;
+        cursor: pointer;
+      }
+
+      .prev {
+        left: 0;
+      }
+
+      .next {
+        right: 0;
+      }
+
+      .arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 40px;
+        opacity: 0.35;
+        user-select: none;
+      }
+
+      .prev .arrow {
+        left: 15px;
+      }
+
+      .next .arrow {
+        right: 15px;
+      }
+
+      .info {
+        position: fixed;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        padding: 8px 16px;
+        border-radius: 999px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reader">
+      <div class="nav prev" onclick="previousPage()">
+        <div class="arrow">❮</div>
+      </div>
+
+      <img id="pageImage" />
+
+      <div class="nav next" onclick="nextPage()">
+        <div class="arrow">❯</div>
+      </div>
+    </div>
+
+    <div class="info" id="pageInfo"></div>
+
+    <script>
+      const START = 403;
+      const END = 2266;
+
+      let currentPage = parseInt(localStorage.getItem("currentPage")) || START;
+
+      const image = document.getElementById("pageImage");
+
+      const info = document.getElementById("pageInfo");
+
+      function formatNumber(num) {
+        return String(num).padStart(5, "0");
+      }
+
+      function loadPage() {
+        image.src = `images/img_${formatNumber(currentPage)}.webp`;
+
+        info.textContent = `${currentPage - START + 1} / ${END - START + 1}`;
+
+        localStorage.setItem("currentPage", currentPage);
+      }
+
+      function nextPage() {
+        if (currentPage < END) {
+          currentPage++;
+
+          loadPage();
+        }
+      }
+
+      function previousPage() {
+        if (currentPage > START) {
+          currentPage--;
+
+          loadPage();
+        }
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") nextPage();
+
+        if (e.key === "ArrowLeft") previousPage();
+      });
+
+      let touchStartX = 0;
+
+      document.addEventListener("touchstart", (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      });
+
+      document.addEventListener("touchend", (e) => {
+        const touchEndX = e.changedTouches[0].screenX;
+
+        const diff = touchStartX - touchEndX;
+
+        if (diff > 50) nextPage();
+
+        if (diff < -50) previousPage();
+      });
+
+      loadPage();
+    </script>
+  </body>
+</html>
