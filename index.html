@@ -49,6 +49,17 @@
         height: 100%;
         z-index: 10;
         cursor: pointer;
+        opacity: 1;
+        visibility: visible;
+        transition:
+          opacity 0.2s ease,
+          visibility 0.2s ease;
+      }
+
+      .nav.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
       }
 
       .prev {
@@ -76,6 +87,33 @@
         transition: all 0.25s ease;
         opacity: 0.8;
         backdrop-filter: blur(8px);
+      }
+
+      .toggle-arrows {
+        position: fixed;
+        top: 18px;
+        right: 18px;
+        z-index: 30;
+        border: none;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        padding: 10px 16px;
+        font-size: 14px;
+        cursor: pointer;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        transition:
+          background 0.2s ease,
+          transform 0.2s ease;
+      }
+
+      .toggle-arrows:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .toggle-arrows:active {
+        transform: scale(0.98);
       }
 
       .nav:hover .arrow {
@@ -109,14 +147,18 @@
     </style>
   </head>
   <body>
+    <button class="toggle-arrows" id="toggleArrowsBtn" type="button">
+      Ẩn mũi tên
+    </button>
+
     <div class="reader">
-      <div class="nav prev" onclick="previousPage()">
+      <div class="nav prev" id="prevNav" onclick="previousPage()">
         <div class="arrow">❮</div>
       </div>
 
       <img id="pageImage" />
 
-      <div class="nav next" onclick="nextPage()">
+      <div class="nav next" id="nextNav" onclick="nextPage()">
         <div class="arrow">❯</div>
       </div>
     </div>
@@ -128,10 +170,13 @@
       const END = 2266;
 
       let currentPage = parseInt(localStorage.getItem("currentPage")) || START;
+      let arrowsVisible = localStorage.getItem("arrowsVisible") !== "false";
 
       const image = document.getElementById("pageImage");
-
       const info = document.getElementById("pageInfo");
+      const prevNav = document.getElementById("prevNav");
+      const nextNav = document.getElementById("nextNav");
+      const toggleArrowsBtn = document.getElementById("toggleArrowsBtn");
 
       function formatNumber(num) {
         return String(num).padStart(5, "0");
@@ -159,6 +204,20 @@
         localStorage.setItem("currentPage", currentPage);
       }
 
+      function updateArrowVisibility() {
+        prevNav.classList.toggle("hidden", !arrowsVisible);
+        nextNav.classList.toggle("hidden", !arrowsVisible);
+        toggleArrowsBtn.textContent = arrowsVisible
+          ? "Ẩn mũi tên"
+          : "Hiện mũi tên";
+        localStorage.setItem("arrowsVisible", String(arrowsVisible));
+      }
+
+      function toggleArrows() {
+        arrowsVisible = !arrowsVisible;
+        updateArrowVisibility();
+      }
+
       function nextPage() {
         if (currentPage < END) {
           currentPage++;
@@ -174,6 +233,8 @@
           loadPage();
         }
       }
+
+      toggleArrowsBtn.addEventListener("click", toggleArrows);
 
       document.addEventListener("keydown", (e) => {
         if (e.key === "ArrowRight") nextPage();
@@ -197,6 +258,7 @@
         if (diff < -50) previousPage();
       });
 
+      updateArrowVisibility();
       loadPage();
     </script>
   </body>
