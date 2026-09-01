@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Shikimori Reader</title>
+    <title>Manga Reader</title>
 
     <style>
       * {
@@ -35,6 +35,11 @@
         object-fit: contain;
         user-select: none;
         -webkit-user-drag: none;
+        transition: opacity 0.25s ease;
+      }
+
+      img.loading {
+        opacity: 0;
       }
 
       .nav {
@@ -58,17 +63,33 @@
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        font-size: 40px;
-        opacity: 0.35;
+        font-size: 60px;
+        color: white;
+        background: rgba(0, 0, 0, 0.5);
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         user-select: none;
+        transition: all 0.25s ease;
+        opacity: 0.8;
+        backdrop-filter: blur(8px);
+      }
+
+      .nav:hover .arrow {
+        opacity: 1;
+        transform: translateY(-50%) scale(1.1);
+        background: rgba(255, 255, 255, 0.15);
       }
 
       .prev .arrow {
-        left: 15px;
+        left: 20px;
       }
 
       .next .arrow {
-        right: 15px;
+        right: 20px;
       }
 
       .info {
@@ -80,6 +101,10 @@
         padding: 8px 16px;
         border-radius: 999px;
         font-size: 14px;
+      }
+
+      .nav:active .arrow {
+        transform: translateY(-50%) scale(0.9);
       }
     </style>
   </head>
@@ -113,7 +138,21 @@
       }
 
       function loadPage() {
-        image.src = `images/img_${formatNumber(currentPage)}.webp`;
+        image.classList.add("loading");
+
+        const newSrc = `images/img_${formatNumber(currentPage)}.webp`;
+
+        const temp = new Image();
+
+        temp.onload = () => {
+          image.src = newSrc;
+
+          requestAnimationFrame(() => {
+            image.classList.remove("loading");
+          });
+        };
+
+        temp.src = newSrc;
 
         info.textContent = `${currentPage - START + 1} / ${END - START + 1}`;
 
