@@ -170,6 +170,10 @@
       const END = 4232;
 
       let currentPage = parseInt(localStorage.getItem("currentPage")) || START;
+
+      if (currentPage < START || currentPage > END) {
+        currentPage = START;
+      }
       let arrowsVisible = localStorage.getItem("arrowsVisible") !== "false";
 
       const image = document.getElementById("pageImage");
