@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"name": "manga project",
+			"path": "."
+		},
+		{
+			"name": "That.Girl.Is.Not.Just.Cute",
+			"path": "../../../Downloads/That.Girl.Is.Not.Just.Cute/That.Girl.Is.Not.Just.Cute"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "manga project"
+	}
+}
