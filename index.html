@@ -108,6 +108,51 @@
           transform 0.2s ease;
       }
 
+      .page-jump {
+        position: fixed;
+        top: 18px;
+        right: 142px;
+        z-index: 30;
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        padding: 4px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+      }
+
+      .page-jump input {
+        width: 72px;
+        border: none;
+        border-radius: 999px;
+        padding: 7px 10px;
+        background: rgba(0, 0, 0, 0.35);
+        color: #fff;
+        font: inherit;
+        text-align: center;
+        outline: none;
+      }
+
+      .page-jump input::placeholder {
+        color: rgba(255, 255, 255, 0.75);
+      }
+
+      .page-jump button {
+        border: none;
+        border-radius: 999px;
+        padding: 7px 12px;
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .page-jump button:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
       .toggle-arrows:hover {
         background: rgba(255, 255, 255, 0.2);
       }
@@ -147,6 +192,18 @@
     </style>
   </head>
   <body>
+    <form class="page-jump" id="pageJumpForm">
+      <input
+        id="pageJumpInput"
+        type="number"
+        min="1"
+        max="3289"
+        placeholder="Trang"
+        aria-label="Nhập số trang muốn đến"
+      />
+      <button type="submit">Đi</button>
+    </form>
+
     <button class="toggle-arrows" id="toggleArrowsBtn" type="button">
       Ẩn mũi tên
     </button>
@@ -181,6 +238,9 @@
       const prevNav = document.getElementById("prevNav");
       const nextNav = document.getElementById("nextNav");
       const toggleArrowsBtn = document.getElementById("toggleArrowsBtn");
+      const pageJumpForm = document.getElementById("pageJumpForm");
+      const pageJumpInput = document.getElementById("pageJumpInput");
+      const totalPages = END - START + 1;
 
       function formatNumber(num) {
         return String(num).padStart(5, "0");
@@ -238,7 +298,28 @@
         }
       }
 
+      function jumpToPage(pageNumber) {
+        if (
+          !Number.isInteger(pageNumber) ||
+          pageNumber < 1 ||
+          pageNumber > totalPages
+        ) {
+          pageJumpInput.setCustomValidity(`Nhập số từ 1 đến ${totalPages}.`);
+          pageJumpInput.reportValidity();
+          return;
+        }
+
+        pageJumpInput.setCustomValidity("");
+        currentPage = START + pageNumber - 1;
+        loadPage();
+      }
+
       toggleArrowsBtn.addEventListener("click", toggleArrows);
+
+      pageJumpForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        jumpToPage(Number(pageJumpInput.value));
+      });
 
       document.addEventListener("keydown", (e) => {
         if (e.key === "ArrowRight") nextPage();
