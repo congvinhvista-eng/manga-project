@@ -18,15 +18,18 @@
         color: #fff;
         font-family: sans-serif;
         overflow: hidden;
+        overscroll-behavior: none;
       }
 
       .reader {
         width: 100vw;
         height: 100vh;
+        height: 100dvh;
         display: flex;
         justify-content: center;
         align-items: center;
         position: relative;
+        touch-action: pan-y;
       }
 
       img {
@@ -186,6 +189,60 @@
         font-size: 14px;
       }
 
+      .error {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        z-index: 40;
+        width: min(90vw, 420px);
+        padding: 16px;
+        border-radius: 12px;
+        background: rgba(120, 0, 0, 0.9);
+        text-align: center;
+        transform: translate(-50%, -50%);
+      }
+
+      @media (max-width: 600px) {
+        .toggle-arrows {
+          top: 10px;
+          right: 10px;
+          padding: 9px 11px;
+          font-size: 12px;
+        }
+
+        .page-jump {
+          top: 10px;
+          right: 108px;
+          gap: 3px;
+          padding: 3px;
+        }
+
+        .page-jump input {
+          width: 58px;
+          padding: 6px 5px;
+          font-size: 13px;
+        }
+
+        .page-jump button {
+          padding: 6px 9px;
+          font-size: 13px;
+        }
+
+        .arrow {
+          width: 54px;
+          height: 54px;
+          font-size: 42px;
+        }
+
+        .prev .arrow {
+          left: 8px;
+        }
+
+        .next .arrow {
+          right: 8px;
+        }
+      }
+
       .nav:active .arrow {
         transform: translateY(-50%) scale(0.9);
       }
@@ -221,6 +278,7 @@
     </div>
 
     <div class="info" id="pageInfo"></div>
+    <div class="error" id="pageError" hidden></div>
 
     <script>
       const START = 944;
@@ -240,6 +298,7 @@
       const toggleArrowsBtn = document.getElementById("toggleArrowsBtn");
       const pageJumpForm = document.getElementById("pageJumpForm");
       const pageJumpInput = document.getElementById("pageJumpInput");
+      const pageError = document.getElementById("pageError");
       const totalPages = END - START + 1;
 
       function formatNumber(num) {
@@ -254,11 +313,18 @@
         const temp = new Image();
 
         temp.onload = () => {
+          pageError.hidden = true;
           image.src = newSrc;
 
           requestAnimationFrame(() => {
             image.classList.remove("loading");
           });
+        };
+
+        temp.onerror = () => {
+          image.classList.remove("loading");
+          pageError.textContent = `Không tải được ảnh trang ${currentPage}. Hãy mở trang qua máy chủ web và kiểm tra thư mục images.`;
+          pageError.hidden = false;
         };
 
         temp.src = newSrc;
@@ -329,18 +395,25 @@
 
       let touchStartX = 0;
 
-      document.addEventListener("touchstart", (e) => {
+      let touchStartY = 0;
+
+      document.querySelector(".reader").addEventListener("touchstart", (e) => {
         touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
       });
 
-      document.addEventListener("touchend", (e) => {
+      document.querySelector(".reader").addEventListener("touchend", (e) => {
         const touchEndX = e.changedTouches[0].screenX;
+        const touchEndY = e.changedTouches[0].screenY;
 
         const diff = touchStartX - touchEndX;
+        const verticalDiff = Math.abs(touchStartY - touchEndY);
 
-        if (diff > 50) nextPage();
+        if (Math.abs(diff) > 50 && Math.abs(diff) > verticalDiff) {
+          if (diff > 0) nextPage();
 
-        if (diff < -50) previousPage();
+          if (diff < 0) previousPage();
+        }
       });
 
       updateArrowVisibility();
